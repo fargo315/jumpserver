@@ -111,6 +111,7 @@ class UserLoginView(mixins.AuthMixin, FormView):
         self.request.session.delete_test_cookie()
 
         try:
+            self.check_global_ip_is_block()
             self.check_user_auth(decrypt_passwd=True)
         except errors.AuthFailedError as e:
             form.add_error(None, e.msg)
@@ -133,7 +134,8 @@ class UserLoginView(mixins.AuthMixin, FormView):
                 errors.BlockMFAError,
                 errors.MFACodeRequiredError,
                 errors.SMSCodeRequiredError,
-                errors.UserPhoneNotSet
+                errors.UserPhoneNotSet,
+                errors.BlockGlobalIpLoginError
         ) as e:
             form.add_error('code', e.msg)
             return super().form_invalid(form)
